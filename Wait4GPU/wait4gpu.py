@@ -22,7 +22,7 @@ def get_status(thresh=0.01):
     return gpu_stat
 
 
-def wait_until_idle(num_req, thresh=0.01, verbose=False):
+def wait_until_idle(num_req, thresh=0.01, verbose=False, candidate=None):
     while True:
         available = []
         stat = get_status(thresh=thresh)
@@ -30,7 +30,11 @@ def wait_until_idle(num_req, thresh=0.01, verbose=False):
             if each["ready"]:
                 available.append(each["gpu_id"])
         if len(available) >= num_req:
-            return available[:num_req]
+            if candidate:
+                if len([e for e in available if e in candidate]) >= num_req:
+                    return [e for e in available if e in candidate][:num_req]
+            else:
+                return available[:num_req]
         time.sleep(20)
         if verbose:
             print("Waiting ")
@@ -41,6 +45,8 @@ def parse_args():
     parser = ArgumentParser(description="Launch script when gpu is idle.")
 
     parser.add_argument("--num-required", type=int, default=1, help="Num GPUs required for your script")
+    
+    parser.add_argument("--candidate", type=str, default="", help="Candidate GPUs")
 
     parser.add_argument("--no-python", default=False, action="store_true",
                         help="Do not prepend the training script with \"python\" - just exec "
@@ -60,7 +66,8 @@ def main():
 
     # set PyTorch distributed related environmental variables
     current_env = os.environ.copy()
-    gpus = wait_until_idle(args.num_required)
+
+    gpus = wait_until_idle(args.num_required, candidate=list(map(int, args.candidate.split(","))))
     current_env["CUDA_VISIBLE_DEVICES"] = ",".join(gpus)
 
     # spawn the processes
