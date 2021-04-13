@@ -31,8 +31,9 @@ def wait_until_idle(num_req, thresh=0.01, verbose=False, candidate=None):
                 available.append(each["gpu_id"])
         if len(available) >= num_req:
             if candidate:
-                if len([e for e in available if e in candidate]) >= num_req:
-                    return [e for e in available if e in candidate][:num_req]
+                in_candidate = [e for e in available if int(e) in candidate]
+                if len(in_candidate) >= num_req:
+                    return in_candidate[:num_req]
             else:
                 return available[:num_req]
         time.sleep(20)
@@ -47,6 +48,8 @@ def parse_args():
     parser.add_argument("--num-required", type=int, default=1, help="Num GPUs required for your script")
     
     parser.add_argument("--candidate", type=str, default="", help="Candidate GPUs")
+
+    parser.add_argument("--threshold", type=float, default=0.02, help="Threshold for available GPUs")
 
     parser.add_argument("--no-python", default=False, action="store_true",
                         help="Do not prepend the training script with \"python\" - just exec "
@@ -66,8 +69,8 @@ def main():
 
     # set PyTorch distributed related environmental variables
     current_env = os.environ.copy()
-
-    gpus = wait_until_idle(args.num_required, candidate=list(map(int, args.candidate.split(","))))
+    candidate = None if not args.candidate else list(map(int, args.candidate.split(",")))
+    gpus = wait_until_idle(args.num_required, candidate=candidate, thresh=args.threshold)
     current_env["CUDA_VISIBLE_DEVICES"] = ",".join(gpus)
 
     # spawn the processes
