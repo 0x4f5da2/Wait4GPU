@@ -2,7 +2,7 @@
 
 A simple utility to execute your deep learning scripts when there are enough idle gpus.
 
-~~抢卡的~~ 一个在有足够的空闲gpu时执行深度学习脚本的小工具
+~~抢卡的~~ 一个在有足够的空闲gpu时执行深度学习训练的小工具
 
 ## Install
 
