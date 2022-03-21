@@ -17,6 +17,14 @@ python setup.py install
 ```shell script
 python3 -m Wait4GPU [--num-required NUM_REQUIRED] [--no-python] training_script
 ```
+**Example:**
+```shell script
+# train `atss_r50_fpn_1x_coco.py` with 1 gpu using mmdetection
+python3 -m Wait4GPU tools/train.py configs/atss/atss_r50_fpn_1x_coco.py
+
+# train `atss_r50_fpn_1x_coco.py` with 2 gpus using mmdetection
+python3 -m Wait4GPU --num-required 2 --no-python ./tools/dist_train.sh configs/atss/atss_r50_fpn_1x_coco.py 2
+```
 
 You may refer to `Wait4GPU/__main__.py` for more detailed usage.
 
