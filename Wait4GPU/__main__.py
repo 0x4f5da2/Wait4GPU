@@ -31,7 +31,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # set PyTorch distributed related environmental variables
+    # set environmental variables
     current_env = os.environ.copy()
     candidate = None if not args.candidate else list(map(int, args.candidate.split(",")))
     gpus = wait_until_idle(args.num_required, candidate=candidate, thresh=args.threshold)
